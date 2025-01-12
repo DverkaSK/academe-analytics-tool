@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { UserCog, FileText, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { StudentTransferDialog } from "@/components/StudentTransferDialog";
+import { StudentRecordCard } from "@/components/StudentRecordCard";
 
 interface Student {
   id: number;
@@ -102,16 +103,13 @@ export default function Students() {
                       <TableCell>{student.scholarship}%</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="icon" title="Перевод в другую группу">
-                            <UserCog className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="icon" title="Учетная карточка">
-                            <FileText className="h-4 w-4" />
-                          </Button>
+                          <StudentTransferDialog
+                            studentName={student.fullName}
+                            currentGroup={student.group}
+                          />
+                          <StudentRecordCard student={student} />
                           {student.hasDebts && (
-                            <Button variant="destructive" size="icon" title="Есть задолженности">
-                              <AlertCircle className="h-4 w-4" />
-                            </Button>
+                            <AlertCircle className="h-4 w-4 text-destructive" />
                           )}
                         </div>
                       </TableCell>
