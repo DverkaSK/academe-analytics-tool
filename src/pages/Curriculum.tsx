@@ -1,27 +1,40 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-interface Subject {
-  id: number;
-  name: string;
-  semester: number;
-  hoursCount: number;
-}
-
-const mockSubjects: Subject[] = [
-  { id: 1, name: "Математический анализ", semester: 1, hoursCount: 144 },
-  { id: 2, name: "Программирование", semester: 1, hoursCount: 180 },
-  { id: 3, name: "Физика", semester: 2, hoursCount: 144 },
-];
+import { fetchSubjects } from "@/services/api";
 
 export default function Curriculum() {
+  const [selectedSemester, setSelectedSemester] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
+
+  const { data: subjects = [], isLoading, error } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: fetchSubjects,
+  });
+
+  if (isLoading) {
+    return <div className="container py-6">Загрузка...</div>;
+  }
+
+  if (error) {
+    return <div className="container py-6">Ошибка загрузки данных</div>;
+  }
+
+  const filteredSubjects = subjects.filter((subject) => {
+    if (selectedSemester && subject.semester !== parseInt(selectedSemester)) {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <div className="container py-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Учебный план</h1>
         <div className="flex gap-4">
-          <Select>
+          <Select value={selectedSemester} onValueChange={setSelectedSemester}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Выберите семестр" />
             </SelectTrigger>
@@ -33,7 +46,7 @@ export default function Curriculum() {
               ))}
             </SelectContent>
           </Select>
-          <Select>
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Выберите год" />
             </SelectTrigger>
@@ -62,7 +75,7 @@ export default function Curriculum() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockSubjects.map((subject) => (
+              {filteredSubjects.map((subject) => (
                 <TableRow key={subject.id}>
                   <TableCell>{subject.name}</TableCell>
                   <TableCell>{subject.semester}</TableCell>
